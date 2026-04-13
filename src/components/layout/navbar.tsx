@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Heart, User, Search, Store } from "lucide-react";
+import { ShoppingCart, Heart, User, Search, Store, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 
 export function Navbar() {
@@ -22,49 +23,82 @@ export function Navbar() {
     setIsMounted(true);
   }, []);
 
+  const navLinks = [
+    { href: "/products", label: "Products" },
+    { href: "/categories", label: "Categories" },
+    { href: "/merchants", label: "Merchants" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-6 lg:gap-10">
+        <div className="flex items-center gap-4 lg:gap-10">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col gap-4 mt-8">
+                <Link href="/" className="flex items-center space-x-2 mb-4">
+                  <div className="bg-primary text-primary-foreground p-1 rounded-md">
+                    <Store className="h-6 w-6" />
+                  </div>
+                  <span className="font-headline font-bold text-xl">Coopay Market</span>
+                </Link>
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-lg font-medium hover:text-primary transition-colors py-2 border-b"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+
           <Link href="/" className="flex items-center space-x-2">
             <div className="bg-primary text-primary-foreground p-1 rounded-md">
-              <Store className="h-6 w-6" />
+              <Store className="h-5 w-5 md:h-6 md:w-6" />
             </div>
-            <span className="font-headline font-bold text-xl tracking-tight hidden sm:inline-block">
+            <span className="font-headline font-bold text-lg md:text-xl tracking-tight hidden sm:inline-block">
               Coopay Market
             </span>
           </Link>
           <nav className="hidden md:flex gap-6">
-            <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
-              Products
-            </Link>
-            <Link href="/categories" className="text-sm font-medium hover:text-primary transition-colors">
-              Categories
-            </Link>
-            <Link href="/merchants" className="text-sm font-medium hover:text-primary transition-colors">
-              Merchants
-            </Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
         </div>
 
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
           <div className="hidden lg:flex w-full max-w-sm items-center space-x-2">
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="h-9 md:w-[300px] lg:w-[400px]"
-            />
-            <Button size="icon" variant="ghost">
-              <Search className="h-4 w-4" />
-            </Button>
+            <div className="relative w-full">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search products..."
+                className="pl-9 h-10 w-full"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 md:space-x-2">
             <Button variant="ghost" size="icon" className="lg:hidden">
               <Search className="h-5 w-5" />
             </Button>
             <Link href="/wishlist">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
                 <Heart className="h-5 w-5" />
               </Button>
             </Link>
@@ -77,27 +111,28 @@ export function Navbar() {
               </Button>
             </Link>
             
-            {/* Defer DropdownMenu rendering until after hydration to avoid stable ID mismatch */}
             {isMounted ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="rounded-full">
+                  <Button variant="outline" size="icon" className="rounded-full h-9 w-9 md:h-10 md:w-10">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild><Link href="/profile">Profile</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link href="/orders">Orders</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/seller">Seller Dashboard</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/bank">Bank Panel</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
+                  <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground">Dashboards</DropdownMenuLabel>
+                  <DropdownMenuItem asChild><Link href="/dashboard/seller">Seller Dashboard</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/bank">Bank Transaction Panel</Link></DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive font-bold">Log out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="outline" size="icon" className="rounded-full">
+              <Button variant="outline" size="icon" className="rounded-full h-9 w-9 md:h-10 md:w-10">
                 <User className="h-5 w-5" />
               </Button>
             )}
