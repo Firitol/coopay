@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-market",
+      "description": "Busy local market",
+      "imageUrl": "https://picsum.photos/seed/market1/1200/600",
+      "imageHint": "market commerce"
+    },
+    {
+      "id": "electronics-cat",
+      "description": "Modern electronics",
+      "imageUrl": "https://picsum.photos/seed/elec1/400/300",
+      "imageHint": "electronics technology"
+    },
+    {
+      "id": "agriculture-cat",
+      "description": "Agricultural produce",
+      "imageUrl": "https://picsum.photos/seed/agri1/400/300",
+      "imageHint": "agriculture farm"
+    },
+    {
+      "id": "clothing-cat",
+      "description": "Traditional clothing",
+      "imageUrl": "https://picsum.photos/seed/cloth1/400/300",
+      "imageHint": "fashion clothing"
+    },
+    {
+      "id": "product-phone",
+      "description": "Smartphone",
+      "imageUrl": "https://picsum.photos/seed/phone1/600/600",
+      "imageHint": "smartphone mobile"
+    },
+    {
+      "id": "product-coffee",
+      "description": "Ethiopian Coffee beans",
+      "imageUrl": "https://picsum.photos/seed/coffee1/600/600",
+      "imageHint": "coffee beans"
+    },
+    {
+      "id": "product-laptop",
+      "description": "High-end laptop",
+      "imageUrl": "https://picsum.photos/seed/laptop1/600/600",
+      "imageHint": "laptop computer"
+    }
+  ]
 }

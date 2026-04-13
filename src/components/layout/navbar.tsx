@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -15,7 +16,6 @@ import {
 import { useState, useEffect } from "react";
 
 export function Navbar() {
-  const [isSearchVisible, setSearchVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
