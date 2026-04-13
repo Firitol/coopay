@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Heart, User, Search, Store, Menu } from "lucide-react";
+import { ShoppingCart, Heart, User, Search, Store, Menu, LogOut, LayoutDashboard, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,13 +15,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
+import { useAuth, useUser } from "@/firebase";
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const [isMounted, setIsMounted] = useState(false);
+  const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const navLinks = [
     { href: "/products", label: "Products" },
@@ -56,6 +71,14 @@ export function Navbar() {
                     {link.label}
                   </Link>
                 ))}
+                {!user && (
+                   <Link
+                    href="/profile"
+                    className="text-lg font-medium hover:text-primary transition-colors py-2 border-b"
+                  >
+                    Login / Sign Up
+                  </Link>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
@@ -111,7 +134,7 @@ export function Navbar() {
               </Button>
             </Link>
             
-            {isMounted ? (
+            {isMounted && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="rounded-full h-9 w-9 md:h-10 md:w-10">
@@ -119,22 +142,54 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="/profile">Profile</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/orders">Orders</Link></DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground">Dashboards</DropdownMenuLabel>
-                  <DropdownMenuItem asChild><Link href="/dashboard/seller">Seller Dashboard</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/bank">Bank Transaction Panel</Link></DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive font-bold">Log out</DropdownMenuItem>
+                  {user ? (
+                    <>
+                      <DropdownMenuLabel className="flex flex-col">
+                        <span>My Account</span>
+                        <span className="text-[10px] font-normal text-muted-foreground truncate">{user.email}</span>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile" className="flex items-center gap-2">
+                          <UserCircle className="h-4 w-4" /> Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/orders" className="flex items-center gap-2">
+                          <ShoppingCart className="h-4 w-4" /> Orders
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground">Dashboards</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard/seller" className="flex items-center gap-2">
+                          <LayoutDashboard className="h-4 w-4" /> Seller Portal
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard/bank" className="flex items-center gap-2">
+                          <LayoutDashboard className="h-4 w-4" /> Bank Portal
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="text-destructive font-bold flex items-center gap-2 cursor-pointer"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="h-4 w-4" /> Log out
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuLabel>Welcome</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile">Login / Register</Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <Button variant="outline" size="icon" className="rounded-full h-9 w-9 md:h-10 md:w-10">
-                <User className="h-5 w-5" />
-              </Button>
             )}
           </div>
         </div>
