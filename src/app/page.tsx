@@ -1,4 +1,3 @@
-
 import { Navbar } from "@/components/layout/navbar";
 import { ProductCard } from "@/components/products/product-card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ArrowRight, Landmark, ShieldCheck, Zap, Store } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FooterYear } from "@/components/layout/footer-year";
 
 export default function Home() {
   const heroImg = PlaceHolderImages.find((img) => img.id === "hero-market");
@@ -209,7 +209,7 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-8 border-t text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Cooperative Bank of Oromia. All rights reserved.
+            © <FooterYear /> Cooperative Bank of Oromia. All rights reserved.
           </div>
         </div>
       </footer>

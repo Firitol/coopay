@@ -1,8 +1,7 @@
-
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Heart, User, Search, Store, Menu } from "lucide-react";
+import { ShoppingCart, Heart, User, Search, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,10 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Navbar() {
   const [isSearchVisible, setSearchVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -72,23 +76,31 @@ export function Navbar() {
                 </span>
               </Button>
             </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/profile">Profile</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/orders">Orders</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/seller">Seller Dashboard</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/bank">Bank Panel</Link></DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            
+            {/* Defer DropdownMenu rendering until after hydration to avoid stable ID mismatch */}
+            {isMounted ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild><Link href="/profile">Profile</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/orders">Orders</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/seller">Seller Dashboard</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/bank">Bank Panel</Link></DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="outline" size="icon" className="rounded-full">
+                <User className="h-5 w-5" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
