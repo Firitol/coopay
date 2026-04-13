@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Store, Landmark, ShieldCheck, Mail, Lock, User, Phone, ArrowRight } from "lucide-react";
+import { Store, Landmark, ShieldCheck, Mail, Lock, User, Loader2 } from "lucide-react";
 import { useAuth, useUser } from "@/firebase";
 import { initiateEmailSignIn, initiateEmailSignUp, initiatePasswordReset } from "@/firebase/non-blocking-login";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,8 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [isResetMode, setIsResetMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
@@ -30,32 +32,75 @@ export default function AuthPage() {
     }
   }, [user, isUserLoading, router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    initiateEmailSignIn(auth, email, password);
-    toast({
-      title: "Attempting login",
-      description: "Please wait while we verify your credentials.",
-    });
+    setIsLoading(true);
+    try {
+      await initiateEmailSignIn(auth, email, password);
+      toast({
+        title: "Welcome Back",
+        description: "You have successfully signed into Coopay Market.",
+      });
+    } catch (error: any) {
+      let description = "Please check your email and password and try again.";
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        description = "Invalid credentials. Please verify your email and password.";
+      }
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    initiateEmailSignUp(auth, email, password);
-    toast({
-      title: "Creating account",
-      description: "Setting up your Coopay Market profile.",
-    });
+    setIsLoading(true);
+    try {
+      await initiateEmailSignUp(auth, email, password, displayName);
+      toast({
+        title: "Account Created",
+        description: "Your Coopay Market profile is ready. Welcome!",
+      });
+    } catch (error: any) {
+      let description = "There was an error creating your account. Please try again later.";
+      if (error.code === 'auth/email-already-in-use') {
+        description = "This email is already registered. Try logging in instead.";
+      } else if (error.code === 'auth/weak-password') {
+        description = "Password is too weak. Please use at least 6 characters.";
+      }
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handlePasswordReset = (e: React.FormEvent) => {
+  const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    initiatePasswordReset(auth, email);
-    toast({
-      title: "Reset link sent",
-      description: `If an account exists for ${email}, a reset link has been sent.`,
-    });
-    setIsResetMode(false);
+    setIsLoading(true);
+    try {
+      await initiatePasswordReset(auth, email);
+      toast({
+        title: "Reset link sent",
+        description: `Check your inbox at ${email} for instructions.`,
+      });
+      setIsResetMode(false);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Request Failed",
+        description: "We couldn't process your reset request. Ensure the email is correct.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isUserLoading) {
@@ -63,7 +108,7 @@ export default function AuthPage() {
       <div className="min-h-screen flex items-center justify-center bg-muted/30">
         <div className="animate-pulse flex flex-col items-center">
           <Store className="h-12 w-12 text-primary mb-4" />
-          <p className="text-muted-foreground font-medium">Securing connection...</p>
+          <p className="text-muted-foreground font-medium">Verifying session...</p>
         </div>
       </div>
     );
@@ -78,8 +123,8 @@ export default function AuthPage() {
             <div className="bg-primary text-white p-3 rounded-2xl shadow-xl mb-4">
               <Landmark className="h-8 w-8" />
             </div>
-            <h1 className="text-3xl font-headline font-bold text-foreground">Coopay Market</h1>
-            <p className="text-muted-foreground mt-2 max-w-xs">
+            <h1 className="text-3xl font-headline font-bold text-foreground tracking-tight">Coopay Market</h1>
+            <p className="text-muted-foreground mt-2 max-w-xs text-sm">
               Secure digital commerce platform by Cooperative Bank of Oromia.
             </p>
           </div>
@@ -90,7 +135,7 @@ export default function AuthPage() {
                 <CardHeader className="space-y-1 pb-6 bg-primary/5">
                   <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
                   <CardDescription>
-                    Enter your email address and we'll send you a link to reset your password.
+                    We'll send a secure link to your bank-linked email.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -107,17 +152,17 @@ export default function AuthPage() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          autoComplete="email"
+                          disabled={isLoading}
                         />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold">
-                      Send Reset Link
+                    <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold" disabled={isLoading}>
+                      {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Send Reset Link"}
                     </Button>
                   </form>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="ghost" onClick={() => setIsResetMode(false)} className="w-full rounded-xl">
+                  <Button variant="ghost" onClick={() => setIsResetMode(false)} className="w-full rounded-xl" disabled={isLoading}>
                     Back to Login
                   </Button>
                 </CardFooter>
@@ -135,8 +180,8 @@ export default function AuthPage() {
                 
                 <TabsContent value="login">
                   <CardHeader className="pb-6 pt-6">
-                    <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-                    <CardDescription>Login with your bank-linked email account.</CardDescription>
+                    <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
+                    <CardDescription>Enter your credentials to access your secure portal.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <form onSubmit={handleLogin} className="space-y-4">
@@ -152,7 +197,8 @@ export default function AuthPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            autoComplete="username email"
+                            disabled={isLoading}
+                            autoComplete="email"
                           />
                         </div>
                       </div>
@@ -165,6 +211,7 @@ export default function AuthPage() {
                             className="px-0 font-bold h-auto text-xs"
                             onClick={() => setIsResetMode(true)}
                             type="button"
+                            disabled={isLoading}
                           >
                             Forgot Password?
                           </Button>
@@ -178,12 +225,13 @@ export default function AuthPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            disabled={isLoading}
                             autoComplete="current-password"
                           />
                         </div>
                       </div>
-                      <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold shadow-lg shadow-primary/20">
-                        Login to Portal
+                      <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold shadow-lg shadow-primary/20" disabled={isLoading}>
+                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Login to Portal"}
                       </Button>
                     </form>
                   </CardContent>
@@ -191,8 +239,8 @@ export default function AuthPage() {
 
                 <TabsContent value="register">
                   <CardHeader className="pb-6 pt-6">
-                    <CardTitle className="text-2xl font-bold">Join Marketplace</CardTitle>
-                    <CardDescription>Start shopping or selling with secure bank verification.</CardDescription>
+                    <CardTitle className="text-2xl font-bold tracking-tight">Join Marketplace</CardTitle>
+                    <CardDescription>Create a secure profile linked to your bank account.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <form onSubmit={handleRegister} className="space-y-4">
@@ -206,6 +254,7 @@ export default function AuthPage() {
                             className="pl-10 h-11 rounded-xl"
                             value={displayName}
                             onChange={(e) => setDisplayName(e.target.value)}
+                            disabled={isLoading}
                             autoComplete="name"
                           />
                         </div>
@@ -222,7 +271,8 @@ export default function AuthPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            autoComplete="username email"
+                            disabled={isLoading}
+                            autoComplete="email"
                           />
                         </div>
                       </div>
@@ -237,12 +287,13 @@ export default function AuthPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            disabled={isLoading}
                             autoComplete="new-password"
                           />
                         </div>
                       </div>
-                      <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold shadow-lg shadow-primary/20">
-                        Create Account
+                      <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold shadow-lg shadow-primary/20" disabled={isLoading}>
+                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Create Account"}
                       </Button>
                     </form>
                   </CardContent>

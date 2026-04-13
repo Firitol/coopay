@@ -6,33 +6,29 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  updateProfile,
 } from 'firebase/auth';
-import { errorEmitter } from '@/firebase/error-emitter';
 
-/** Initiate anonymous sign-in (non-blocking). */
-export function initiateAnonymousSignIn(authInstance: Auth): void {
-  signInAnonymously(authInstance).catch((error) => {
-    console.error("Anonymous sign-in error", error);
-  });
+/** Initiate anonymous sign-in. Returns a promise for handled feedback. */
+export function initiateAnonymousSignIn(authInstance: Auth) {
+  return signInAnonymously(authInstance);
 }
 
-/** Initiate email/password sign-up (non-blocking). */
-export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): void {
-  createUserWithEmailAndPassword(authInstance, email, password).catch((error) => {
-    console.error("Sign-up error", error);
-  });
+/** Initiate email/password sign-up with optional display name. Returns a promise. */
+export async function initiateEmailSignUp(authInstance: Auth, email: string, password: string, displayName?: string) {
+  const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+  if (displayName && userCredential.user) {
+    await updateProfile(userCredential.user, { displayName });
+  }
+  return userCredential;
 }
 
-/** Initiate email/password sign-in (non-blocking). */
-export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): void {
-  signInWithEmailAndPassword(authInstance, email, password).catch((error) => {
-    console.error("Sign-in error", error);
-  });
+/** Initiate email/password sign-in. Returns a promise. */
+export function initiateEmailSignIn(authInstance: Auth, email: string, password: string) {
+  return signInWithEmailAndPassword(authInstance, email, password);
 }
 
-/** Initiate password reset (non-blocking). */
-export function initiatePasswordReset(authInstance: Auth, email: string): void {
-  sendPasswordResetEmail(authInstance, email).catch((error) => {
-    console.error("Password reset error", error);
-  });
+/** Initiate password reset. Returns a promise. */
+export function initiatePasswordReset(authInstance: Auth, email: string) {
+  return sendPasswordResetEmail(authInstance, email);
 }
