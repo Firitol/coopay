@@ -1,4 +1,3 @@
-
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,83 +31,85 @@ export default function SellerDashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="flex-1 container mx-auto px-4 py-6 md:py-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-headline font-bold">Seller Dashboard</h1>
-            <p className="text-muted-foreground">Manage your products and track your sales performance.</p>
+            <h1 className="text-2xl md:text-3xl font-headline font-bold">Seller Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">Manage your products and track your sales performance.</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2 w-full md:w-auto">
             <Plus className="h-4 w-4" /> Add New Product
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
           {stats.map((stat) => (
             <Card key={stat.title}>
               <CardContent className="p-6 flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <h3 className="text-2xl font-bold">{stat.value}</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground uppercase tracking-tight">{stat.title}</p>
+                  <h3 className="text-xl md:text-2xl font-bold mt-1">{stat.value}</h3>
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color} opacity-20`} />
+                <stat.icon className={`h-8 w-8 ${stat.color} opacity-20 shrink-0`} />
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Recent Orders</CardTitle>
-              <Button variant="ghost" size="sm">View All</Button>
+              <CardTitle className="text-lg md:text-xl">Recent Orders</CardTitle>
+              <Button variant="ghost" size="sm" className="text-xs">View All</Button>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentOrders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium">{order.id}</TableCell>
-                      <TableCell>{order.customer}</TableCell>
-                      <TableCell>ETB {order.amount.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          order.status === "Delivered" ? "default" :
-                          order.status === "Processing" ? "secondary" :
-                          order.status === "Pending" ? "outline" : "outline"
-                        }>
-                          {order.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{order.date}</TableCell>
+            <CardContent className="overflow-x-auto p-0 sm:p-6 sm:pt-0">
+              <div className="min-w-[600px] sm:min-w-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order ID</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {recentOrders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium text-xs md:text-sm">{order.id}</TableCell>
+                        <TableCell className="text-xs md:text-sm">{order.customer}</TableCell>
+                        <TableCell className="text-xs md:text-sm font-semibold">ETB {order.amount.toLocaleString()}</TableCell>
+                        <TableCell>
+                          <Badge variant={
+                            order.status === "Delivered" ? "default" :
+                            order.status === "Processing" ? "secondary" :
+                            order.status === "Pending" ? "outline" : "outline"
+                          } className="text-[10px]">
+                            {order.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-xs md:text-sm">{order.date}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle className="text-lg md:text-xl">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start gap-2">
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start gap-2 h-11 text-sm">
                 <Users className="h-4 w-4" /> Manage Customers
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
+              <Button variant="outline" className="w-full justify-start gap-2 h-11 text-sm">
                 <BarChart3 className="h-4 w-4" /> Sales Analytics
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
+              <Button variant="outline" className="w-full justify-start gap-2 h-11 text-sm">
                 <Package className="h-4 w-4" /> Inventory Logs
               </Button>
               <div className="p-4 bg-primary/5 rounded-lg border border-primary/10 mt-6">
@@ -116,10 +117,10 @@ export default function SellerDashboard() {
                   <Landmark className="h-4 w-4 text-primary" />
                   Banking Support
                 </h4>
-                <p className="text-xs text-muted-foreground">
-                  Need help with your Coopay business account? Contact our dedicated merchant support.
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Need help with your Coopay business account? Contact our dedicated merchant support team.
                 </p>
-                <Button variant="link" size="sm" className="px-0 h-auto mt-2">Contact Support</Button>
+                <Button variant="link" size="sm" className="px-0 h-auto mt-2 font-semibold">Contact Support</Button>
               </div>
             </CardContent>
           </Card>
