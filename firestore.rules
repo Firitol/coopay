@@ -1,0 +1,215 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY
+     * This ruleset implements a strict authorization model for the Coopay Market (Government Bank integrated app).
+     * It relies on two primary mechanisms:
+     * 1. Path-based Ownership: User-specific data is nested under /users/{userId}, allowing for O(1) authorization checks.
+     * 2. Denormalization for Authorization: Critical IDs (sellerId, buyerId, etc.) are stored directly on shared documents
+     *    (like products and transactions) to avoid expensive cross-document lookups.
+     *
+     * DATA STRUCTURE
+     * - /users/{userId}: Private user profiles and nested personal data (addresses, cart, orders).
+     * - /products_active: Publicly available marketplace listings.
+     * - /transactions: Secure financial logs accessible by relevant parties and bank staff.
+     * - /categories: Publicly readable product taxonomies.
+     *
+     * KEY SECURITY DECISIONS
+     * - Roles are determined by the existence of specific profile documents (e.g., /admin_profiles/{userId}).
+     * - Write operations are strictly restricted to owners or specific roles (Admin/Bank Staff).
+     * - Schema validation is kept light to allow for rapid prototyping, focusing only on relational integrity.
+     */
+
+    // --- Helper Functions ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admin_profiles/$(request.auth.uid));
+    }
+
+    function isBankStaff() {
+      return isSignedIn() && exists(/databases/$(database)/documents/bank_staff_profiles/$(request.auth.uid));
+    }
+
+    function isSeller() {
+      return isSignedIn() && exists(/databases/$(database)/documents/seller_profiles/$(request.auth.uid));
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Core user profile management.
+     * @path /users/{userId}
+     * @allow User can manage their own profile; Admins can manage all.
+     * @deny Unauthenticated access or cross-user modification.
+     * @principle Ownership and Role-Based Access Control.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if (isExistingOwner(userId) && request.resource.data.id == resource.data.id) || isAdmin();
+      allow delete: if isAdmin();
+
+      /**
+       * @description User-owned subcollections (Addresses, Cart, Wishlist, Notifications).
+       * @path /users/{userId}/[subcollection]/{id}
+       * @allow Owner has full access to their own data tree.
+       * @deny Any access by other users.
+       * @principle Path-based ownership ensures strict privacy.
+       */
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /shopping_cart_items/{cartItemId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /wishlist_items/{wishlistItemId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      /**
+       * @description Order history for buyers.
+       * @path /users/{userId}/orders/{orderId}
+       * @allow Buyer (path owner), Admins, and Bank Staff can read. Only system/bank-staff can create/update.
+       * @deny Cross-user reads or unauthorized status changes.
+       * @principle Path-based ownership for buyers with elevated role access.
+       */
+      match /orders/{orderId} {
+        allow get, list: if isOwner(userId) || isAdmin() || isBankStaff();
+        allow create: if isOwner(userId) && request.resource.data.buyerId == userId;
+        allow update: if isAdmin() || isBankStaff();
+        allow delete: if isAdmin();
+
+        match /order_items/{orderItemId} {
+          allow get, list: if isOwner(userId) || isAdmin() || isBankStaff();
+          allow create, update, delete: if isAdmin() || isBankStaff();
+        }
+      }
+
+      /**
+       * @description Seller-specific draft products.
+       * @path /users/{sellerId}/products_drafts/{productId}
+       * @allow Only the seller can see or edit their own drafts.
+       * @deny Public access or other sellers.
+       * @principle Structural segregation of private drafts from public listings.
+       */
+      match /products_drafts/{productId} {
+        allow read, write: if isOwner(userId);
+        
+        match /images/{imageId} {
+          allow read, write: if isOwner(userId);
+        }
+      }
+    }
+
+    /**
+     * @description Role profiles used for Database-Backed Access Control (DBAC).
+     * @path /{profile_collection}/{userId}
+     * @allow Owners can read their own profile; Admins can manage all.
+     * @deny Public modification of role assignments.
+     * @principle Identity verification via document existence.
+     */
+    match /admin_profiles/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list, write: if isAdmin();
+    }
+    match /seller_profiles/{userId} {
+      allow get: if isOwner(userId) || isAdmin() || isBankStaff();
+      allow list: if isAdmin() || isBankStaff();
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    match /buyer_profiles/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    match /bank_staff_profiles/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list, write: if isAdmin();
+    }
+
+    /**
+     * @description Global product categories.
+     * @path /categories/{categoryId}
+     * @allow Publicly readable; Admin-only writes.
+     * @deny Unauthorized modification of the taxonomy.
+     * @principle Public Read with Admin-Only Writes.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Publicly visible active products.
+     * @path /products_active/{productId}
+     * @allow Public reads; Sellers manage their own items; Admins oversee all.
+     * @deny Modification by non-owners or non-admins.
+     * @principle Ownership validation via denormalized sellerId.
+     */
+    match /products_active/{productId} {
+      allow get, list: if true;
+      allow create: if isSeller() && request.resource.data.sellerId == request.auth.uid;
+      allow update: if (resource != null && resource.data.sellerId == request.auth.uid) || isAdmin();
+      allow delete: if (resource != null && resource.data.sellerId == request.auth.uid) || isAdmin();
+
+      match /images/{imageId} {
+        allow get, list: if true;
+        allow create: if isSeller() && request.resource.data.sellerId == request.auth.uid;
+        allow update, delete: if (resource != null && resource.data.sellerId == request.auth.uid) || isAdmin();
+      }
+
+      match /reviews/{reviewId} {
+        allow get, list: if true;
+        allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
+        allow update, delete: if (resource != null && resource.data.buyerId == request.auth.uid) || isAdmin();
+      }
+    }
+
+    /**
+     * @description Financial transaction logs.
+     * @path /transactions/{transactionId}
+     * @allow Payers, Payees, Bank Staff, and Admins can access relevant logs.
+     * @deny Access by unrelated users.
+     * @principle Shared access via denormalized participant IDs.
+     */
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && (resource.data.payerUserId == request.auth.uid || resource.data.payeeSellerId == request.auth.uid || isBankStaff() || isAdmin());
+      allow list: if isSignedIn() && (isBankStaff() || isAdmin()); 
+      allow create: if isBankStaff() || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Global access for Sellers to see items sold across all orders.
+     * @path /order_items/{orderItemId} (via Collection Group)
+     * @allow Sellers can list items where they are the designated seller.
+     * @deny Access to other sellers' items.
+     * @principle Query-Access Pattern (QAP) security via denormalized sellerId.
+     */
+    match /{path=**}/order_items/{orderItemId} {
+      allow read: if isSignedIn() && (resource.data.sellerId == request.auth.uid || isBankStaff() || isAdmin());
+    }
+  }
+}

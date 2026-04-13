@@ -1,0 +1,1163 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account in the Coopay Market system, serving as a base for different user roles like Admin, Seller, Buyer, and Bank Staff.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for login and notifications.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's phone number, used for OTP and notifications."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A public-facing name for the user, if applicable (e.g., for reviews, seller profiles)."
+        },
+        "role": {
+          "type": "string",
+          "description": "The primary role assigned to the user within the system.",
+          "format": "enum"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether the user account is currently active or deactivated by an administrator."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user account information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "phoneNumber",
+        "role",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Address": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Address",
+      "type": "object",
+      "description": "Represents a physical address, which can be linked to users (for shipping) or sellers (for store location).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Address entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User associated with this address. (Relationship: User 1:N Address)"
+        },
+        "addressLabel": {
+          "type": "string",
+          "description": "A descriptive label for the address, e.g., 'Home', 'Work', 'Store'."
+        },
+        "street": {
+          "type": "string",
+          "description": "The street address, including building number."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city of the address."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state or region of the address."
+        },
+        "zipCode": {
+          "type": "string",
+          "description": "The postal or ZIP code of the address."
+        },
+        "country": {
+          "type": "string",
+          "description": "The country of the address."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The geographical latitude of the address, for map integration (optional)."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The geographical longitude of the address, for map integration (optional)."
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Indicates if this is the user's default address (optional)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "addressLabel",
+        "street",
+        "city",
+        "state",
+        "zipCode",
+        "country"
+      ]
+    },
+    "AdminProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AdminProfile",
+      "type": "object",
+      "description": "Stores specific profile information and permissions for an administrator user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AdminProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User account. (Relationship: User 1:1 AdminProfile)"
+        },
+        "permissions": {
+          "type": "array",
+          "description": "A list of administrative permissions granted to this admin.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the admin profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the admin profile information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "permissions",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SellerProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SellerProfile",
+      "type": "object",
+      "description": "Stores specific profile information for a seller (merchant), including store details and approval status.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SellerProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User account. (Relationship: User 1:1 SellerProfile)"
+        },
+        "storeName": {
+          "type": "string",
+          "description": "The name of the seller's online store."
+        },
+        "storeDescription": {
+          "type": "string",
+          "description": "A brief description of the seller's store or business."
+        },
+        "storeLogoUrl": {
+          "type": "string",
+          "description": "URL to the seller's store logo image.",
+          "format": "uri"
+        },
+        "isApproved": {
+          "type": "boolean",
+          "description": "Indicates whether the seller's application has been approved by an administrator."
+        },
+        "bankAccountNumber": {
+          "type": "string",
+          "description": "The seller's bank account number for receiving payouts. (Sensitive data, handle with care and encryption.)"
+        },
+        "addressId": {
+          "type": "string",
+          "description": "Reference to the Address entity representing the seller's physical store location. (Relationship: Address 1:N SellerProfile)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the seller profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the seller profile information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "storeName",
+        "isApproved",
+        "bankAccountNumber",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BuyerProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BuyerProfile",
+      "type": "object",
+      "description": "Stores specific profile information for a buyer (customer).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the BuyerProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User account. (Relationship: User 1:1 BuyerProfile)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the buyer profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the buyer profile information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BankStaffProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BankStaffProfile",
+      "type": "object",
+      "description": "Stores specific profile information and permissions for a bank staff user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the BankStaffProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User account. (Relationship: User 1:1 BankStaffProfile)"
+        },
+        "department": {
+          "type": "string",
+          "description": "The department within the bank the staff member belongs to."
+        },
+        "permissions": {
+          "type": "array",
+          "description": "A list of specific permissions granted to this bank staff member.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the bank staff profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the bank staff profile information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "department",
+        "permissions",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Organizes products into logical groups for easier browsing and filtering.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Category entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product category (e.g., 'Electronics', 'Clothing')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the category."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to an image representing the category (optional).",
+          "format": "uri"
+        },
+        "parentCategoryId": {
+          "type": "string",
+          "description": "Reference to a parent category for hierarchical categorization (optional). (Relationship: Category 1:N Category)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the category was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the category information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Details about a product listed for sale on the marketplace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "The selling price of the product."
+        },
+        "stockQuantity": {
+          "type": "number",
+          "description": "The current quantity of the product available in stock."
+        },
+        "sellerId": {
+          "type": "string",
+          "description": "Reference to the SellerProfile who listed this product. (Relationship: SellerProfile 1:N Product)"
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the Category this product belongs to. (Relationship: Category 1:N Product)"
+        },
+        "averageRating": {
+          "type": "number",
+          "description": "The average rating received for this product (optional)."
+        },
+        "totalReviews": {
+          "type": "number",
+          "description": "The total number of reviews received for this product (optional)."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether the product is currently visible and available for purchase."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the product was first listed.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the product information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "price",
+        "stockQuantity",
+        "sellerId",
+        "categoryId",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ProductImage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ProductImage",
+      "type": "object",
+      "description": "Stores image URLs for a product.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ProductImage entity."
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product this image belongs to. (Relationship: Product 1:N ProductImage)"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to the product image.",
+          "format": "uri"
+        },
+        "altText": {
+          "type": "string",
+          "description": "Alternative text for the image, for accessibility and SEO (optional)."
+        },
+        "displayOrder": {
+          "type": "number",
+          "description": "Order in which the image should be displayed (optional)."
+        }
+      },
+      "required": [
+        "id",
+        "productId",
+        "imageUrl"
+      ]
+    },
+    "ShoppingCartItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ShoppingCartItem",
+      "type": "object",
+      "description": "Represents a single product item added to a buyer's shopping cart.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ShoppingCartItem entity."
+        },
+        "buyerId": {
+          "type": "string",
+          "description": "Reference to the BuyerProfile who owns this shopping cart item. (Relationship: BuyerProfile 1:N ShoppingCartItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product added to the cart. (Relationship: Product 1:N ShoppingCartItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the product in the cart."
+        },
+        "addedAt": {
+          "type": "string",
+          "description": "Timestamp when the item was added to the cart.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "buyerId",
+        "productId",
+        "quantity",
+        "addedAt"
+      ]
+    },
+    "WishlistItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WishlistItem",
+      "type": "object",
+      "description": "Represents a single product item saved to a buyer's wishlist.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WishlistItem entity."
+        },
+        "buyerId": {
+          "type": "string",
+          "description": "Reference to the BuyerProfile who owns this wishlist item. (Relationship: BuyerProfile 1:N WishlistItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product added to the wishlist. (Relationship: Product 1:N WishlistItem)"
+        },
+        "addedAt": {
+          "type": "string",
+          "description": "Timestamp when the item was added to the wishlist.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "buyerId",
+        "productId",
+        "addedAt"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a placed order by a buyer, containing details about purchased items, total amount, and status.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "buyerId": {
+          "type": "string",
+          "description": "Reference to the BuyerProfile who placed the order. (Relationship: BuyerProfile 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "Timestamp when the order was placed.",
+          "format": "date-time"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total monetary amount of the order, including all items and potential shipping fees."
+        },
+        "shippingAddressId": {
+          "type": "string",
+          "description": "Reference to the Address where the order should be shipped. (Relationship: Address 1:N Order)"
+        },
+        "orderStatus": {
+          "type": "string",
+          "description": "The current status of the order (e.g., 'Pending', 'Shipped', 'Delivered').",
+          "format": "enum"
+        },
+        "paymentStatus": {
+          "type": "string",
+          "description": "The current payment status of the order (e.g., 'Pending', 'Completed', 'Failed').",
+          "format": "enum"
+        },
+        "transactionId": {
+          "type": "string",
+          "description": "Reference to the Transaction entity associated with this order's payment (optional). (Relationship: Transaction 1:1 Order)"
+        },
+        "trackingNumber": {
+          "type": "string",
+          "description": "The tracking number for the shipment (optional)."
+        },
+        "estimatedDeliveryDate": {
+          "type": "string",
+          "description": "The estimated date for delivery (optional).",
+          "format": "date"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the order record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the order record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "buyerId",
+        "orderDate",
+        "totalAmount",
+        "shippingAddressId",
+        "orderStatus",
+        "paymentStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents a single product item within a specific order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OrderItem entity."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to the Order this item belongs to. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product purchased. (Relationship: Product 1:N OrderItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the product purchased in this order item."
+        },
+        "unitPrice": {
+          "type": "number",
+          "description": "The price of a single unit of the product at the time of purchase."
+        },
+        "sellerId": {
+          "type": "string",
+          "description": "Reference to the SellerProfile from whom this product was purchased. (Relationship: SellerProfile 1:N OrderItem)"
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "quantity",
+        "unitPrice",
+        "sellerId"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Records details of payment transactions processed through the Coopay gateway.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Transaction entity."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to the Order associated with this transaction. (Relationship: Order 1:1 Transaction)"
+        },
+        "payerUserId": {
+          "type": "string",
+          "description": "Reference to the User who initiated the payment. (Relationship: User 1:N Transaction)"
+        },
+        "payeeSellerId": {
+          "type": "string",
+          "description": "Reference to the SellerProfile who is the ultimate recipient of the payment for goods. (Relationship: SellerProfile 1:N Transaction)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary amount of the transaction."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the transaction (e.g., 'ETB')."
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "The type of transaction (e.g., 'Purchase', 'Refund', 'Payout').",
+          "format": "enum"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "The method used for payment (e.g., 'Bank Account', 'Mobile Wallet').",
+          "format": "enum"
+        },
+        "coopayReferenceId": {
+          "type": "string",
+          "description": "The unique transaction ID provided by the Coopay payment system."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the payment transaction (e.g., 'Pending', 'Completed', 'Failed').",
+          "format": "enum"
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "Timestamp when the transaction occurred.",
+          "format": "date-time"
+        },
+        "fraudDetected": {
+          "type": "boolean",
+          "description": "Flag indicating if potential fraud was detected for this transaction."
+        },
+        "fraudFlags": {
+          "type": "array",
+          "description": "A list of specific flags or reasons for fraud detection (optional).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "Detailed error message if the transaction failed (optional)."
+        },
+        "processedByBankStaffId": {
+          "type": "string",
+          "description": "Reference to the BankStaffProfile who manually processed or verified this transaction (optional). (Relationship: BankStaffProfile 1:N Transaction)"
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "payerUserId",
+        "payeeSellerId",
+        "amount",
+        "currency",
+        "transactionType",
+        "paymentMethod",
+        "coopayReferenceId",
+        "status",
+        "transactionDate",
+        "fraudDetected"
+      ]
+    },
+    "Review": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Review",
+      "type": "object",
+      "description": "Allows buyers to rate and provide feedback on purchased products.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Review entity."
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product being reviewed. (Relationship: Product 1:N Review)"
+        },
+        "buyerId": {
+          "type": "string",
+          "description": "Reference to the BuyerProfile who submitted the review. (Relationship: BuyerProfile 1:N Review)"
+        },
+        "rating": {
+          "type": "number",
+          "description": "The rating given to the product, typically on a scale (e.g., 1-5)."
+        },
+        "comment": {
+          "type": "string",
+          "description": "The textual feedback or comment provided by the buyer (optional)."
+        },
+        "isApproved": {
+          "type": "boolean",
+          "description": "Indicates if the review has been approved by an administrator for public display (optional)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the review was submitted.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the review was last updated (e.g., moderation).",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "productId",
+        "buyerId",
+        "rating",
+        "isApproved",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Stores notifications to be delivered to users (e.g., order updates, payment status).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Notification entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who is the recipient of the notification. (Relationship: User 1:N Notification)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of notification (e.g., 'OrderUpdate', 'PaymentStatus', 'SellerApproval').",
+          "format": "enum"
+        },
+        "message": {
+          "type": "string",
+          "description": "The content or body of the notification message."
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Indicates whether the user has read the notification."
+        },
+        "relatedEntityId": {
+          "type": "string",
+          "description": "Reference to an entity relevant to the notification (e.g., OrderId for 'OrderUpdate')."
+        },
+        "relatedEntityType": {
+          "type": "string",
+          "description": "The type of the related entity (e.g., 'Order', 'Product')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the notification was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "type",
+        "message",
+        "isRead",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores core user information. The document ID (`userId`) MUST match `request.auth.uid`. Includes the 'role' field for DBAC. Only the authenticated user can read/update their own profile. Admins can manage all user profiles.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/addresses/{addressId}",
+        "definition": {
+          "entityName": "Address",
+          "schema": {
+            "$ref": "#/backend/entities/Address"
+          },
+          "description": "Stores physical addresses associated with a specific user. The `userId` in the path ensures authorization independence; only the owning user can access their addresses.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this address."
+            },
+            {
+              "name": "addressId",
+              "description": "The unique identifier of the address document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/shopping_cart_items/{cartItemId}",
+        "definition": {
+          "entityName": "ShoppingCartItem",
+          "schema": {
+            "$ref": "#/backend/entities/ShoppingCartItem"
+          },
+          "description": "Stores individual product items within a user's shopping cart. The `userId` in the path ensures authorization independence; only the owning user can access their cart items.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this shopping cart item."
+            },
+            {
+              "name": "cartItemId",
+              "description": "The unique identifier of the shopping cart item document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/wishlist_items/{wishlistItemId}",
+        "definition": {
+          "entityName": "WishlistItem",
+          "schema": {
+            "$ref": "#/backend/entities/WishlistItem"
+          },
+          "description": "Stores individual product items within a user's wishlist. The `userId` in the path ensures authorization independence; only the owning user can access their wishlist items.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this wishlist item."
+            },
+            {
+              "name": "wishlistItemId",
+              "description": "The unique identifier of the wishlist item document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores details of orders placed by a buyer. The `userId` in the path (corresponding to `buyerId`) ensures authorization independence; only the buyer can view their orders. Admins and Bank Staff can also read these orders.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the buyer who placed the order."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the order document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}/order_items/{orderItemId}",
+        "definition": {
+          "entityName": "OrderItem",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItem"
+          },
+          "description": "Stores individual product items within a specific order. Includes denormalized 'sellerId' for authorization independence, allowing sellers to read their specific order items via collection group queries without `get()` calls. Buyer can read based on parent order path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the buyer who owns the parent order."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the parent order."
+            },
+            {
+              "name": "orderItemId",
+              "description": "The unique identifier of the order item document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores personalized notifications for specific users. The `userId` in the path ensures authorization independence; only the recipient user can access their notifications.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who is the recipient of the notification."
+            },
+            {
+              "name": "notificationId",
+              "description": "The unique identifier of the notification document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/admin_profiles/{userId}",
+        "definition": {
+          "entityName": "AdminProfile",
+          "schema": {
+            "$ref": "#/backend/entities/AdminProfile"
+          },
+          "description": "Stores specific profile information for administrator users. The `userId` as the document ID directly supports DBAC and authorization independence by checking for existence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who has an admin profile."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/seller_profiles/{userId}",
+        "definition": {
+          "entityName": "SellerProfile",
+          "schema": {
+            "$ref": "#/backend/entities/SellerProfile"
+          },
+          "description": "Stores specific profile information for sellers. The `userId` as the document ID directly supports DBAC and authorization independence by checking for existence. Includes sensitive 'bankAccountNumber' (should be encrypted at rest).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who has a seller profile."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/buyer_profiles/{userId}",
+        "definition": {
+          "entityName": "BuyerProfile",
+          "schema": {
+            "$ref": "#/backend/entities/BuyerProfile"
+          },
+          "description": "Stores specific profile information for buyers. The `userId` as the document ID directly supports DBAC and authorization independence by checking for existence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who has a buyer profile."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/bank_staff_profiles/{userId}",
+        "definition": {
+          "entityName": "BankStaffProfile",
+          "schema": {
+            "$ref": "#/backend/entities/BankStaffProfile"
+          },
+          "description": "Stores specific profile information for bank staff users. The `userId` as the document ID directly supports DBAC and authorization independence by checking for existence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who has a bank staff profile."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Organizes products into logical groups. Publicly readable. Only Admins can create/update/delete. Authorization is independent as it's a global collection.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for the category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/products_active/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores details for actively listed and publicly visible products. Includes denormalized 'sellerId' for authorization independence, allowing sellers to manage their products and supporting QAPs for public browsing.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the active product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/products_active/{productId}/images/{imageId}",
+        "definition": {
+          "entityName": "ProductImage",
+          "schema": {
+            "$ref": "#/backend/entities/ProductImage"
+          },
+          "description": "Stores image URLs for active products. Includes denormalized 'sellerId' in each image document for authorization independence, enabling sellers to manage their product images without `get()` calls.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the parent active product."
+            },
+            {
+              "name": "imageId",
+              "description": "The unique identifier of the product image."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{sellerId}/products_drafts/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores details for products in a draft state, private to the seller. The `sellerId` in the path ensures authorization independence; only the owning seller can access their draft products.",
+          "params": [
+            {
+              "name": "sellerId",
+              "description": "The unique identifier of the seller who owns this draft product."
+            },
+            {
+              "name": "productId",
+              "description": "The unique identifier of the draft product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{sellerId}/products_drafts/{productId}/images/{imageId}",
+        "definition": {
+          "entityName": "ProductImage",
+          "schema": {
+            "$ref": "#/backend/entities/ProductImage"
+          },
+          "description": "Stores image URLs for draft products. The `sellerId` in the path ensures authorization independence; only the owning seller can access their draft product images.",
+          "params": [
+            {
+              "name": "sellerId",
+              "description": "The unique identifier of the seller who owns the parent draft product."
+            },
+            {
+              "name": "productId",
+              "description": "The unique identifier of the parent draft product."
+            },
+            {
+              "name": "imageId",
+              "description": "The unique identifier of the product image."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Records details of all payment transactions. Includes denormalized 'payerUserId', 'payeeSellerId', and 'processedByBankStaffId' for authorization independence, enabling relevant parties (payer, seller, bank staff, admin) to access and list transactions without `get()` calls.",
+          "params": [
+            {
+              "name": "transactionId",
+              "description": "The unique identifier of the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/products_active/{productId}/reviews/{reviewId}",
+        "definition": {
+          "entityName": "Review",
+          "schema": {
+            "$ref": "#/backend/entities/Review"
+          },
+          "description": "Allows buyers to rate and review active products. Includes denormalized 'buyerId' for authorization independence, allowing the buyer to manage their own review. Reviews are publicly readable (QAP for product pages).",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the product being reviewed."
+            },
+            {
+              "name": "reviewId",
+              "description": "The unique identifier of the review document."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure for Coopay Market is designed with a strong emphasis on Authorization Independence and adherence to Query-Access Patterns (QAPs) to ensure scalability, security, and debuggability. The core strategy revolves around two main approaches:\n\n1.  **Path-Based Ownership for Private User Data:** For entities strictly owned and managed by an individual user, a hierarchical path structure under `/users/{userId}/` is employed. This includes collections like `addresses`, `shopping_cart_items`, `wishlist_items`, `orders`, and `notifications`. In this setup, the `{userId}` wildcard in the path directly corresponds to `request.auth.uid`, allowing security rules to instantly determine ownership without needing to perform `get()` operations on parent documents. This inherently supports Authorization Independence for these collections, as the necessary authorization context is available in the request path.\n\n2.  **Denormalization for Cross-Cutting or Shared Access:** For entities that require access by multiple parties (e.g., a seller's products viewed by buyers, or order items viewed by both buyer and seller) or global entities, critical authorization fields are denormalized directly into the document. Examples include:\n    *   `products_active/{productId}` and its subcollection `images`: Each `Product` and `ProductImage` document explicitly contains the `sellerId`. This allows rules to check `resource.data.sellerId == request.auth.uid` for seller management of their active products/images without needing to `get()` the `SellerProfile` or `User` document.\n    *   `users/{userId}/orders/{orderId}/order_items/{orderItemId}`: Each `OrderItem` document contains the `sellerId`. This is crucial for enabling sellers to efficiently query all their sold items using a `collectionGroup('order_items').where('sellerId', '==', request.auth.uid)` query, which directly checks the denormalized `sellerId` within the document. This avoids the need for security rules to `get()` the parent `Order` document, thus maintaining Authorization Independence.\n    *   `transactions/{transactionId}`: This top-level collection centralizes all payment transactions. Each `Transaction` document includes `payerUserId`, `payeeSellerId`, and optionally `processedByBankStaffId`. Security rules can directly compare these fields with `request.auth.uid` to grant read access to relevant parties, or check for Admin/Bank Staff roles. This ensures that `list` operations (QAPs) for transactions can be performed by payers, payees, or staff without needing to `get()` any other document.\n\n**Structural Segregation** is applied to `Product` entities, separating `products_active` (publicly browsable, managed by seller/admin) from `users/{sellerId}/products_drafts` (private to the seller for editing). This clearly defines different security postures and simplifies rules. Global entities like `categories` are publicly readable, with write access restricted to admins, supporting QAPs for product browsing.\n\n**DBAC (Database-Backed Access Control)** is implemented by storing user roles (`User.role` field) and dedicated profile documents (`/admin_profiles/{userId}`, `/seller_profiles/{userId}`, etc.). The *existence* of a document in these specific profile collections can be used in rules to quickly confirm a user's role without custom claims.\n\nBy consistently applying these principles, the Firestore structure enables robust, atomic security rules that are easy to understand, debug, and scale, as authorization checks rarely involve expensive cross-document lookups."
+  }
+}
