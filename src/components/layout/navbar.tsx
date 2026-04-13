@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link";
-import { ShoppingCart, Heart, User, Search, Store, Menu, LogOut, LayoutDashboard, UserCircle, Landmark, X } from "lucide-react";
+import { ShoppingCart, Heart, User, Search, Store, Menu, LogOut, LayoutDashboard, UserCircle, Landmark, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
